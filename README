@@ -1,2 +1,12 @@
 ``pixel_color.py`` provides an example of using PIL/pillow
 instead of ImageMagick (``convert``) to take the mean of an image.
+
+``cli.py`` is an example of the use of ``argparse``. ::
+
+    usage: Map polygon and feature extractor [-h] [--without-opencv]
+                                             [--keep-temporary-files]
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      --without-opencv
+      --keep-temporary-files, -k
