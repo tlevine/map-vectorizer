@@ -1,7 +1,7 @@
 import subprocess, re, logging
 
 def old_color(image):
-    pixelvalue = subprocess.Popen(["convert", "-quiet", image, "-resize", "1x1","txt:-"], stdout=subprocess.PIPE).communicate()[0]
+    pixelvalue = subprocess.Popen(["convert", "-quiet", image, "-resize", "1x1","txt:-"], stdout=subprocess.PIPE).communicate()[0].decode('ascii')
     pattern = re.compile(r"0,0: \(([\s0-9]*),([\s0-9]*),([\s0-9]*).*")
     values = pattern.findall(pixelvalue)
     if len(values) > 0:
