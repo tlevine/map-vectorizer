@@ -1,5 +1,7 @@
 import subprocess, re, logging
 
+from PIL import Image
+
 def old_color(image):
     pixelvalue = subprocess.Popen(["convert", "-quiet", image, "-resize", "1x1","txt:-"], stdout=subprocess.PIPE).communicate()[0].decode('ascii')
     pattern = re.compile(r"0,0: \(([\s0-9]*),([\s0-9]*),([\s0-9]*).*")
@@ -11,4 +13,4 @@ def old_color(image):
         return red, green, blue
 
 def new_color(image):
-    pass
+    return Image.open(image).resize((1,1)).getpixel((0,0))
