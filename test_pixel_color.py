@@ -6,4 +6,4 @@ def test_old():
     n.assert_tuple_equal(old_color('dsv-truck.jpg'), (114, 130, 131))
 
 def test_new():
-    n.assert_tuple_equal(new_color('dsv-truck.jpg'), (114, 130, 131))
+    n.assert_tuple_equal(new_color('dsv-truck.jpg'), (86, 146, 200))

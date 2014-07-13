@@ -1,0 +1,2 @@
+``pixel_color.py`` provides an example of using PIL/pillow
+instead of ImageMagick (``convert``) to take the mean of an image.

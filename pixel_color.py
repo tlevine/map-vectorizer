@@ -1,3 +1,8 @@
+'''
+The two methods produce different colors, but they're both bluish.
+Figure out what resizing algorithm convert uses, and you can probably
+produce the same thing with PIL/pillow.
+'''
 import subprocess, re, logging
 
 from PIL import Image
