@@ -1,0 +1,153 @@
+hello thomas
+
+as promised, here's the list of main issues with the vectorizer. the script
+creates an output folder with the name of the GeoTIFF file without the .tif
+(eg. "vectorize.py input.tif" generates an "input" folder next to
+input.tif) and generates two log files (one for python one for R) in it as
+well as the output itself
+
+*Shape simplification algorithm*
+
+it would be good to explore alternative simplification algorithms such as
+the one seen here which uses the Visvalingam algorithm (implemented in
+javascript):
+http://bost.ocks.org/mike/simplify/
+
+there is also the douglas-peucker algorithm (implemented in R):
+http://finzi.psych.upenn.edu/R/library/Guerry/html/thinnedSpatialPoly.html
+
+right now i use alphahull:
+http://rpubs.com/geospacedman/alphasimple
+
+bonus quest: the new algorithm could also enforce adjacency of polygons (no
+space between adjacent buildings) as explained in (these guys didn't
+provide any code):
+http://www.sciencedirect.com/science/article/pii/S0097849311000033
+
+*Multiple dependencies*
+
+GIMP
+----------
+i used GIMP because i could not find a proper mapping between
+brightness-contrast and threshold values with non-GIMP image manipulation:
+
+contrast
+https://github.com/NYPL/map-vectorizer/blob/9b9129b9d135c89b350700549794e7d0f2348af2/vectorize_map.py#L80
+
+threshold
+https://github.com/NYPL/map-vectorizer/blob/9b9129b9d135c89b350700549794e7d0f2348af2/vectorize_map.py#L81
+
+and finally the execution command in lines 82-88
+
+the brightness, contrast and threshold values come from the config file:
+https://github.com/NYPL/map-vectorizer/blob/9b9129b9d135c89b350700549794e7d0f2348af2/vectorize_config_default.txt
+(users rename that file to vectorize_config.txt to use it)
+
+if no config file is present the program uses default values in config.py
+https://github.com/NYPL/map-vectorizer/blob/9b9129b9d135c89b350700549794e7d0f2348af2/config.py#L23
+
+whatever alternative (PIL/other) has to produce the exact same results as
+GIMP as explained in the readme (i tried with imagemagick and could not do
+it):
+https://github.com/NYPL/map-vectorizer/tree/9b9129b9d135c89b350700549794e7d0f2348af2#customizing-the-vectorizer-to-your-own-maps
+
+GDAL Tools
+----------
+when the input GeoTIFF (the map image) goes through GIMP (or any image
+manipulation) it loses the geodata (becomes a regular TIFF). i use GDAL
+tools to get the original geo data (gdalinfo) and put it back to the
+thresholded images. i also use gdal_polygonize to produce the coarse
+polygons. there is a python implementation of GDAL tools:
+https://pypi.python.org/pypi/GDAL/1.9.1
+
+this would be the most involved refactoring since i use it extensively
+throughout the script
+
+i do use OGR for python (which is also part of GDAL):
+http://www.gdal.org/ogr/ because i found an implementation/example that
+opens a shapefile and extracts polygons from it:
+http://cosmicproject.org/OGR/cris_example_write.html
+
+this is what i use to make "chunks of 50k polygons" for R to process
+(154-225):
+https://github.com/NYPL/map-vectorizer/blob/9b9129b9d135c89b350700549794e7d0f2348af2/vectorize_map.py#L154
+
+i also use OGR to assemble the final shapefile from the discrete "approved"
+polygons (see imagemagick)
+
+R Simplification
+----------
+i use R because i found code that reduces the amount of corners in a
+geographic polygon: http://rpubs.com/geospacedman/alphasimple
+
+the function in the vectorizer is:
+https://github.com/NYPL/map-vectorizer/blob/9b9129b9d135c89b350700549794e7d0f2348af2/vectorize_map.py#L227
+
+and the R code:
+https://github.com/NYPL/map-vectorizer/blob/9b9129b9d135c89b350700549794e7d0f2348af2/simplify_map.R
+
+ideally, we would eliminate R and have python code that produces the same
+output as R (one shapefile for each polygon that was simplified that is
+within the area threshold)
+
+i produce one shapefile per polygon (thousands!) because it was the only
+way i could pass data from python-to-R-and-back but was also useful to find
+the average color of the polygon (see imagemagick)
+
+ImageMagick
+----------
+i know imagemagick and dont know any python image manipulation so i went
+with what i knew
+
+this part goes through each one of those thousands of little polygons (.shp
+files in the output folder) and cookie-cuts the original GeoTIFF with
+gdalwarp:
+https://github.com/NYPL/map-vectorizer/blob/9b9129b9d135c89b350700549794e7d0f2348af2/vectorize_map.py#L319
+
+the line where imagemagick is used is:
+
+https://github.com/NYPL/map-vectorizer/blob/9b9129b9d135c89b350700549794e7d0f2348af2/vectorize_map.py#L326
+
+this is based on this stackoverflow answer:
+http://stackoverflow.com/a/14658377
+
+the color is compared to the color list in the config and rejected if it is
+closest to paper color (lines 329-354):
+https://github.com/NYPL/map-vectorizer/blob/9b9129b9d135c89b350700549794e7d0f2348af2/vectorize_map.py#L329
+
+OpenCV
+----------
+opencv is used but it is an internal python library so no issues there...
+
+Other stuff
+----------
+i would like to add a command-line parameter where you could opt to not
+execute the opencv part of the script (eg. vectorize input.tif
+--without-opencv)
+
+i also want to add a command-line parameter to *not* delete temporary files
+(they are very useful for debugging)... right now i comment out lines
+477-485 every time i want to keep them:
+
+https://github.com/NYPL/map-vectorizer/blob/9b9129b9d135c89b350700549794e7d0f2348af2/vectorize_map.py#L477
+
+this is my first python/R project so my code is definitely no the best
+(globals... i know [?] ) so assume this code has all the standard
+mistakes/do-nots of a complete amateur
+
+if you want/can help in any of the above (or just basic refactoring) it
+would be a huge win for the project... my ideal scenario would be:
+
+[open map in gimp and find the right parameters for
+bright/contrast/threshold/colors]
+pip install map-vectorizer
+[add config.txt with your values+colors]
+map-vectorize mymap.tif
+
+or something like that
+
+anyway... this is already a very long email
+
+thanks in advance for any help!
+
+- mauricio
