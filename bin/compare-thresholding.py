@@ -15,11 +15,17 @@ def gimp_one(inputfile:'file', thresholdfile:'file',
         'thresholdblack': thresholdblack,
         'thresholdwhite': thresholdwhite,
     }
-    command = [gimp_path, '-i', '-b', re.sub(r'[\n ]+', ' ', gimp_func % args), '-b' '(gimp-quit 0)']
+    command = [gimp_path, '-i', '-b', '-']
+    p = subprocess.Popen(command, stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if verbose:
-        print(command)
-    p = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        print((gimp_func % args))
+    p.stdin.write((gimp_func % args).encode('utf-8'))
+    p.stdin.write(b'(gimp-quit 0)\n')
+    p.stdin.close()
     p.wait()
+    if verbose or p.returncode:
+        print('$ ' + ' '.join(command))
     if verbose:
         print(p.stdout.read())
     if p.returncode:
@@ -47,7 +53,7 @@ gimp_func = '''
   (gimp-brightness-contrast drawable %(brightness)d %(contrast)d)
   (gimp-threshold drawable %(thresholdblack)d %(thresholdwhite)d) 
   (gimp-file-save RUN-NONINTERACTIVE image drawable "%(thresholdfile)s" "%(thresholdfile)s")
-  (gimp-image-delete image))'
+  (gimp-image-delete image))
 '''
 
 
@@ -65,7 +71,6 @@ def gimp_many():
         fn = '/tmp/gimp_%d_%d_%d_%d.tif' % args
         if not os.path.isfile(fn):
             gimp_one('test.tif', fn, *args)
-        break
 
 if __name__ == '__main__':
     gimp_many() # main()
