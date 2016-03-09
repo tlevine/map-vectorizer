@@ -20,6 +20,10 @@ def gimp_one(inputfile:'file', thresholdfile:'file',
         print(command)
     p = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     p.wait()
+    if verbose:
+        print(p.stdout.read())
+    if p.returncode:
+        print(p.stderr.read())
 
 def compare(left, right):
     diff = ImageChops.difference(a, b)
@@ -61,6 +65,7 @@ def gimp_many():
         fn = '/tmp/gimp_%d_%d_%d_%d.tif' % args
         if not os.path.isfile(fn):
             gimp_one('test.tif', fn, *args)
+        break
 
 if __name__ == '__main__':
     gimp_many() # main()
