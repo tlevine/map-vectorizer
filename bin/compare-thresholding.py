@@ -6,7 +6,7 @@ from PIL import Image, ImageChops
 
 def gimp_one(inputfile:'file', thresholdfile:'file',
              brightness, contrast, thresholdblack, thresholdwhite,
-             gimp_path = '/Users/t/Applications/GIMP.app/Contents/MacOS/GIMP'):
+             gimp_path='gimp', verbose=False):
     args = {
         'inputfile': inputfile,
         'thresholdfile': thresholdfile,
@@ -16,16 +16,10 @@ def gimp_one(inputfile:'file', thresholdfile:'file',
         'thresholdwhite': thresholdwhite,
     }
     command = [gimp_path, '-i', '-b', re.sub(r'[\n ]+', ' ', gimp_func % args), '-b' '(gimp-quit 0)']
-    print(command)
-    assert False
+    if verbose:
+        print(command)
     p = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     p.wait()
-
-# Old command
-# /Users/t/Applications/GIMP.app/Contents/MacOS/GIMP -i -b '(let* ((image (car (file-tiff-load RUN-NONINTERACTIVE "test.tif" "test.tif"))) (drawable (car (gimp-image-get-layer-by-name image "Background")))) (gimp-selection-none image) (gimp-brightness-contrast drawable -127 0) (gimp-threshold drawable 0 0) (gimp-file-save RUN-NONINTERACTIVE image drawable "/tmp/gimp_-127_0_0_0.tif" "/tmp/gimp_-127_0_0_0.tif") (gimp-image-delete image))' -b '(gimp-quit 0)'
-
-# New command
-# ['/Users/t/Applications/GIMP.app/Contents/MacOS/GIMP', '-i', '-b', ' (let* ( (image  (car (file-tiff-load RUN-NONINTERACTIVE "test.tif" "test.tif") ))  (drawable  (car  (gimp-image-get-layer-by-name image "Background"))))  (gimp-selection-none image)  (gimp-brightness-contrast drawable -127 0) (gimp-threshold drawable 0 0)  (gimp-file-save RUN-NONINTERACTIVE image drawable "/tmp/gimp_-127_0_0_0.tif" "/tmp/gimp_-127_0_0_0.tif") (gimp-image-delete image))\' ', '-b(gimp-quit 0)']
 
 def compare(left, right):
     diff = ImageChops.difference(a, b)
