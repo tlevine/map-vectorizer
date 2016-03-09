@@ -77,7 +77,7 @@ def compare_thresholding(output_dir, input_file='test.tif'):
     thresholdblack = range(0, 255, 8)
     thresholdwhite = range(0, 255, 8)
 
-    p = product(thresholdwhite, thresholdblack, brightness, contrast):
+    p = product(thresholdwhite, thresholdblack, brightness, contrast)
     for args in p:
         fn = os.path.join(output_dir, '%d_%d_%d_%d.tif' % args)
         if not os.path.isfile(fn):
