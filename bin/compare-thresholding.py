@@ -5,7 +5,7 @@ from itertools import product
 from PIL import Image, ImageChops
 
 def gimp_one(inputfile:'file', thresholdfile:'file',
-             brightness, contrast, thresholdblack, thresholdwhite,
+             thresholdblack, thresholdwhite, brightness, contrast,
              gimp_path='gimp', verbose=False):
     args = {
         'inputfile': inputfile,
