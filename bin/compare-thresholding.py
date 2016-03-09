@@ -24,12 +24,13 @@ def gimp_one(inputfile:'file', thresholdfile:'file',
     p.stdin.write(b'(gimp-quit 0)\n')
     p.stdin.close()
     p.wait()
-    if verbose or p.returncode:
-        print('$ ' + ' '.join(command))
     if verbose:
-        print(p.stdout.read())
-    if p.returncode:
-        print(p.stderr.read())
+        print('$ ' + ' '.join(command))
+    stdout=p.stdout.read()
+    stderr=p.stderr.read()
+    if b'Error' in stdout or b'Error' in stderr or p.returncode:
+        print((stderr + b'\n\n' + stdout).decode('utf-8'))
+        exit(1)
 
 def compare(left, right):
     diff = ImageChops.difference(a, b)
@@ -83,7 +84,7 @@ def compare_thresholding(output_dir, input_file='test.tif'):
     p = product(thresholdwhite, thresholdblack, brightness, contrast)
     for args in p:
         fn = os.path.join(output_dir, '%d_%d_%d_%d.tif' % args)
-        if not os.path.isfile(fn):
+        if not os.path.exists(fn):
             gimp_one(input_file, fn, *args)
 
 if __name__ == '__main__':
