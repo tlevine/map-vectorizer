@@ -69,6 +69,9 @@ def compare_thresholding(output_dir, input_file='test.tif'):
 
     Then check the contents of ~/thresholding to see what the
     thresholds look like.
+
+        cd ~/thresholding && ls|sort -n|xargs feh
+
     '''
     os.makedirs(output_dir, exist_ok=True)
 
