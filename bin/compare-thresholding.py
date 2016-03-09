@@ -65,18 +65,21 @@ def compare_thresholding(output_dir, input_file='test.tif'):
     '''
     Run like so.
     
-        ./bin/compare-thresholding.py ~/gimp-thresholding
+        ./bin/compare-thresholding.py ~/thresholding
 
-    Then check the contents of ~/gimp-thresholding to see what the
+    Then check the contents of ~/thresholding to see what the
     thresholds look like.
     '''
-    brightness = range(-127, 128, 16)
-    contrast = range(0, 100, 10)
-    thresholdblack = range(0, 255, 16)
-    thresholdwhite = range(0, 255, 16)
+    os.makedirs(output_dir, exist_ok=True)
 
-    for args in product(brightness, contrast, thresholdblack, thresholdwhite):
-        fn = os.path.join(output_dir, 'gimp_%d_%d_%d_%d.tif' % args)
+    brightness = range(-127, 128, 8)
+    contrast = range(0, 100, 5)
+    thresholdblack = range(0, 255, 8)
+    thresholdwhite = range(0, 255, 8)
+
+    p = product(thresholdwhite, thresholdblack, brightness, contrast):
+    for args in p:
+        fn = os.path.join(output_dir, '%d_%d_%d_%d.tif' % args)
         if not os.path.isfile(fn):
             gimp_one(input_file, fn, *args)
 
