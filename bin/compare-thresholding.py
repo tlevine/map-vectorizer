@@ -76,10 +76,10 @@ def compare_thresholding(output_dir, input_file='test.tif'):
     '''
     os.makedirs(output_dir, exist_ok=True)
 
-    brightness = range(-127, 128, 8)
-    contrast = range(0, 100, 5)
-    thresholdblack = range(0, 255, 8)
-    thresholdwhite = range(0, 255, 8)
+    brightness = range(-127, 128, 32)
+    contrast = range(0, 100, 20)
+    thresholdblack = range(0, 255, 32)
+    thresholdwhite = range(0, 255, 32)
 
     p = product(thresholdwhite, thresholdblack, brightness, contrast)
     for args in p:
